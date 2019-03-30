@@ -1,2 +1,2 @@
 # tflite-object-detection-lib
-A simple wrapper library for object detection using tensorflow lite
+A simple wrapper library for object detection based on coco dataset using tensorflow lite.
