@@ -1,28 +1,25 @@
 package com.andruid.magic.objectdetectionlib;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.Toast;
 
-import com.andruid.magic.objectdetection.BitmapUtils;
-import com.andruid.magic.objectdetection.Classifier;
-import com.andruid.magic.objectdetection.ModelAPI;
-import com.andruid.magic.objectdetection.Recognition;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+
+import com.andruid.magic.objectdetection.model.Recognition;
+import com.andruid.magic.objectdetection.repo.Classifier;
+import com.andruid.magic.objectdetection.repo.ModelAPI;
 import com.andruid.magic.objectdetectionlib.databinding.ActivityMainBinding;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -35,7 +32,6 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
-            classifier = ModelAPI.create(getAssets());
+            classifier = ModelAPI.Companion.create(getAssets());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(getApplicationContext(), response.getPermissionName()+" denied", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), response.getPermissionName() + " denied", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -92,8 +88,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode==PICK_IMAGE && resultCode==RESULT_OK){
-            if(data==null)
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
+            if (data == null)
                 return;
             Uri uri = data.getData();
             Glide.with(this)
@@ -102,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            Bitmap bitmap = BitmapUtils.resize(resource);
                             Bitmap drawBitmap = resource.copy(Bitmap.Config.ARGB_8888, true);
                             Canvas canvas = new Canvas(drawBitmap);
                             Paint paint = new Paint();
@@ -111,16 +107,14 @@ public class MainActivity extends AppCompatActivity {
                             paint.setStrokeWidth(20f);
 
                             classifier.setMode(ModelAPI.MODE_EXCLUDE);
-                            List<String> list = new ArrayList<>();
-                            list.add("person");
-                            list.add("donut");
-                            classifier.addSelectedLabels(list);
-                            for(String s : classifier.getSelectedLabels())
-                                Log.d(TAG, "onResourceReady: sellabels:"+s);
-                            List<Recognition> recognitions = classifier.recognizeImage(bitmap);
-                            Log.d(TAG, "onResourceReady: size:"+recognitions.size());
-                            for(Recognition r : recognitions){
-                                Log.d(TAG, "label:"+r.getTitle()+":conf:"+r.getConfidence());
+                            String[] labels = {};
+                            classifier.addSelectedLabels(labels);
+                            for (String s : classifier.getSelectedLabels())
+                                Log.d(TAG, "onResourceReady: sellabels:" + s);
+                            List<Recognition> recognitions = classifier.recognizeImage(resource);
+                            Log.d(TAG, "onResourceReady: size:" + recognitions.size());
+                            for (Recognition r : recognitions) {
+                                Log.d(TAG, "label:" + r.getTitle() + ":conf:" + r.getConfidence());
                                 canvas.drawRect(r.getLocation(), paint);
                             }
                             binding.imageView.setImageBitmap(drawBitmap);
