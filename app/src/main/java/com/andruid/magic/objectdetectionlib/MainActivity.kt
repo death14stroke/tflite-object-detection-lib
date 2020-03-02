@@ -25,6 +25,9 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import splitties.toast.toast
 
+/**
+ * Sample activity to demonstrate usage of the library
+ */
 class MainActivity : AppCompatActivity() {
     companion object {
         private val TAG = "${MainActivity::class.java.simpleName}log"
@@ -32,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+
     private val classifier by lazy { ModelAPI.create(assets) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +82,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Select image from gallery to perform object detection
+     */
     private fun pickImage() {
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)

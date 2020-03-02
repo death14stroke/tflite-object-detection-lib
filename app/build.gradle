@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
+apply plugin: 'org.jetbrains.dokka'
+
 android {
     compileSdkVersion 29
     defaultConfig {
@@ -35,6 +37,14 @@ android {
     aaptOptions{
         noCompress "tflite"
     }
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "$buildDir/dokka"
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude("META-INF/*.kotlin_module")
+    }
 }
 
 dependencies {
@@ -55,7 +65,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
 
-    implementation project(':objectdetection')
+    implementation project(':library')
 }
 
 repositories {
